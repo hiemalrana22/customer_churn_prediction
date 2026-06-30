@@ -93,7 +93,7 @@ c1.metric("Churn probability", f"{prob:.0%}", f"{dot} {band} risk")
 c2.metric("Monthly charge", f"${monthly:,.0f}")
 c3.metric(f"Value at risk ({horizon}mo)", f"${value_at_risk:,.0f}")
 c4.metric("Projected $ saved", f"${projected_saved:,.0f}",
-          help="prob × save-rate × value at risk, minus the intervention cost below")
+          help="prob × save-rate × value at risk (gross; net of cost is shown below)")
 
 st.progress(min(prob, 1.0))
 
@@ -132,8 +132,7 @@ pc1.metric("Customers", f"{len(book):,}")
 pc2.metric("Avg churn probability", f"{book['churn_prob'].mean():.0%}")
 pc3.metric("Total expected revenue at risk", f"${book['expected_loss'].sum():,.0f}")
 
-st.bar_chart(
-    pd.cut(book["churn_prob"], bins=np.linspace(0, 1, 11)).value_counts().sort_index(),
-    color="#A23B72",
-)
+prob_dist = pd.cut(book["churn_prob"], bins=np.linspace(0, 1, 11)).value_counts().sort_index()
+prob_dist.index = prob_dist.index.astype(str)  # Altair can't serialise Interval index
+st.bar_chart(prob_dist, color="#A23B72")
 st.caption("Distribution of calibrated churn probabilities across the customer base.")
