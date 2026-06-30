@@ -35,7 +35,14 @@ data/*.csv
 data/*.zip
 data/*.xlsx
 data/*.parquet
+data/*.db
 !data/.gitkeep
+# Keep the Telco dataset so the deployed app has data on startup
+!data/WA_Fn-UseC_-Telco-Customer-Churn.csv
+
+# Trained model artifacts (regenerate with python -m src.model)
+models/
+*.joblib
 
 # Outputs
 outputs/figures/*.png

@@ -17,15 +17,23 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 FIGURES_DIR = OUTPUTS_DIR / "figures"
+MODELS_DIR = PROJECT_ROOT / "models"
 
 # Ensure output directories exist
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
 # DATA FILES
 # ============================================================================
 
 TELCO_DATA_FILE = DATA_DIR / "WA_Fn-UseC_-Telco-Customer-Churn.csv"
+
+# Local SQLite warehouse built from the CSV (see data_loader.load_from_sqlite)
+TELCO_DB_FILE = DATA_DIR / "telco.db"
+
+# Saved model artifact
+MODEL_FILE = MODELS_DIR / "churn_xgb.joblib"
 
 # ============================================================================
 # REPRODUCIBILITY

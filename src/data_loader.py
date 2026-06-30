@@ -5,13 +5,14 @@ This module provides functions to load, validate, and perform initial
 preprocessing of the Telco Customer Churn data.
 """
 
+import sqlite3
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Tuple, Dict, Any
 import warnings
 
-from .config import TELCO_DATA_FILE, RANDOM_SEED
+from .config import TELCO_DATA_FILE, TELCO_DB_FILE, RANDOM_SEED
 
 
 def load_telco_data(filepath: Path = TELCO_DATA_FILE) -> pd.DataFrame:
@@ -51,6 +52,74 @@ def load_telco_data(filepath: Path = TELCO_DATA_FILE) -> pd.DataFrame:
     # Convert SeniorCitizen to categorical for consistency
     df['SeniorCitizen'] = df['SeniorCitizen'].map({0: 'No', 1: 'Yes'})
     
+    return df
+
+
+# ---------------------------------------------------------------------------
+# SQL path
+#
+# The raw file ships as a CSV, but in practice the data sits in a warehouse and
+# you pull it with SQL. I mirror that here: load the CSV into a local SQLite
+# database once, then read everything back through a query. Keeps the loading
+# code honest about where data really comes from, and makes it easy to add
+# filters/joins later without touching pandas.
+# ---------------------------------------------------------------------------
+
+# The blank TotalCharges values (new accounts, tenure 0) come through as empty
+# strings, so NULLIF lets pandas coerce them to NaN cleanly.
+DEFAULT_CHURN_QUERY = """
+    SELECT
+        customerID, gender, SeniorCitizen, Partner, Dependents, tenure,
+        PhoneService, MultipleLines, InternetService, OnlineSecurity,
+        OnlineBackup, DeviceProtection, TechSupport, StreamingTV,
+        StreamingMovies, Contract, PaperlessBilling, PaymentMethod,
+        MonthlyCharges,
+        NULLIF(TRIM(TotalCharges), '') AS TotalCharges,
+        Churn
+    FROM customers
+    WHERE tenure >= 0
+    ORDER BY customerID
+"""
+
+
+def build_sqlite_warehouse(csv_path: Path = TELCO_DATA_FILE,
+                           db_path: Path = TELCO_DB_FILE,
+                           table: str = "customers",
+                           overwrite: bool = False) -> Path:
+    """Load the raw CSV into a local SQLite db (once). Returns the db path."""
+    if db_path.exists() and not overwrite:
+        return db_path
+
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"Data file not found at {csv_path}. Run ./download_dataset.sh first."
+        )
+
+    raw = pd.read_csv(csv_path)
+    with sqlite3.connect(db_path) as conn:
+        raw.to_sql(table, conn, if_exists="replace", index=False)
+    return db_path
+
+
+def load_from_sqlite(query: str = DEFAULT_CHURN_QUERY,
+                     db_path: Path = TELCO_DB_FILE,
+                     csv_path: Path = TELCO_DATA_FILE) -> pd.DataFrame:
+    """
+    Load the Telco data through SQLite instead of reading the CSV directly.
+
+    Builds the database on first call, then runs `query` against it. Post-loading
+    cleanup matches load_telco_data so downstream code doesn't care which path
+    was used.
+    """
+    build_sqlite_warehouse(csv_path, db_path)
+
+    with sqlite3.connect(db_path) as conn:
+        df = pd.read_sql_query(query, conn)
+
+    df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+    if df['SeniorCitizen'].dtype != object:
+        df['SeniorCitizen'] = df['SeniorCitizen'].map({0: 'No', 1: 'Yes'})
+
     return df
 
 
