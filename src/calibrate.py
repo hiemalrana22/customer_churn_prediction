@@ -13,7 +13,6 @@ held-out slice so we're not grading our own homework.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.frozen import FrozenEstimator
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
@@ -85,6 +84,9 @@ def calibrate(method: str = "isotonic", df=None):
 
 def plot_reliability(y_true, raw_prob, cal_prob, report, save_path=None):
     """Reliability diagram: raw vs calibrated against the diagonal (perfect)."""
+    # This function is only called by offline report generation.
+    import matplotlib.pyplot as plt
+
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.plot([0, 1], [0, 1], "k--", lw=1, label="perfectly calibrated")
 
