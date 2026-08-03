@@ -1,0 +1,22 @@
+name: Keep Streamlit app awake
+
+on:
+  schedule:
+    # Streamlit Community Cloud hibernates apps after 12 hours without traffic.
+    # Run off the top of the hour to reduce the chance of GitHub queue delays.
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Request Streamlit app
+        run: >-
+          curl --fail --silent --show-error --location
+          --max-time 120 --retry 2 --retry-delay 10
+          --output /dev/null
+          https://customerchurnprediction-wrdtyrnpxtw6p4crk8ownm.streamlit.app/
