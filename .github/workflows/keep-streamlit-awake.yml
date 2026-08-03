@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Request Streamlit app
         run: >-
-          curl --fail --silent --show-error --location
+          curl --fail --silent --show-error
           --max-time 120 --retry 2 --retry-delay 10
           --output /dev/null
           https://customerchurnprediction-wrdtyrnpxtw6p4crk8ownm.streamlit.app/
