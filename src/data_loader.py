@@ -123,6 +123,16 @@ def load_from_sqlite(query: str = DEFAULT_CHURN_QUERY,
     return df
 
 
+def load_for_serverless(csv_path: Path = TELCO_DATA_FILE) -> pd.DataFrame:
+    """Load the committed CSV without creating a SQLite file.
+
+    Vercel functions run on an ephemeral, read-only project filesystem. This is
+    the deployment-safe counterpart to ``load_from_sqlite``; data preparation
+    remains identical while avoiding a local database write.
+    """
+    return load_telco_data(csv_path)
+
+
 def get_data_info(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Generate comprehensive information about the dataset.

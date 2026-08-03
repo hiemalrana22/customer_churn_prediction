@@ -3,12 +3,12 @@
 Predicting which telco customers are about to leave, *and* turning that into a
 dollar-ranked call list a retention team can actually work. The project goes the
 whole way: SQL data access -> hypothesis testing -> a calibrated gradient-boosting
-model -> SHAP explanations -> an ROI / A/B-test layer -> a Streamlit app.
+model -> SHAP explanations -> an ROI / A/B-test layer -> a Vercel-hosted Python app.
 
-**Live app:** _add your Streamlit Cloud URL here after deploying (see [Deploy](#deploy))_
+**Live app:** _add your Vercel URL here after deploying (see [Deploy](#deploy))_
 
 ![App screenshot](docs/images/app_screenshot.png)
-<!-- add docs/images/app_screenshot.png after the first run: streamlit run app.py, then screenshot -->
+<!-- add docs/images/app_screenshot.png after the first run: python app.py, then screenshot -->
 
 Dataset: [Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) - 7,043 customers, 21 fields, 26.5% churn.
 
@@ -113,7 +113,8 @@ src/
   explain.py         global + per-customer SHAP
   visualizations.py  EDA plots
 notebooks/01_telco_churn_eda.ipynb   EDA + significance section
-app.py               Streamlit dashboard
+api/index.py          Vercel Flask serverless dashboard
+app.py                local Flask development entry point
 make_report_assets.py  regenerates the README figures
 run_eda.py           scripted EDA
 ```
@@ -131,16 +132,18 @@ python -m src.business_impact   # ROI table + A/B test
 python -m src.explain           # SHAP drivers
 python make_report_assets.py    # rebuild README figures
 
-streamlit run app.py            # the dashboard
+python app.py                   # the dashboard at http://127.0.0.1:5000
 ```
 
 ## Deploy
 
-The app runs on [Streamlit Community Cloud](https://share.streamlit.io) for free:
+The app runs on [Vercel](https://vercel.com) as a Python serverless function:
 
-1. Push this repo to GitHub. The Telco CSV is committed under `data/`, and the app
-   builds the SQLite db from it on startup, so there's nothing else to wire up.
-2. On Streamlit Cloud: **New app** -> point it at this repo -> main file `app.py`.
+1. Push this repo to GitHub. The Telco CSV is committed under `data/`; the deployed
+   app reads it directly and never writes a SQLite file.
+2. In Vercel: **Add New → Project** -> import this repository -> deploy. Vercel
+   detects `api/index.py` and uses the included `vercel.json` rewrite to serve the
+   dashboard at the root URL.
 3. Paste the resulting URL at the top of this README.
 
 ## Notes / honest limitations

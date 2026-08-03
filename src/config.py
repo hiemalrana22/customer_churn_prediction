@@ -19,9 +19,11 @@ OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 FIGURES_DIR = OUTPUTS_DIR / "figures"
 MODELS_DIR = PROJECT_ROOT / "models"
 
-# Ensure output directories exist
-FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-MODELS_DIR.mkdir(parents=True, exist_ok=True)
+# Do not create directories at import time. Vercel's deployed filesystem is
+# read-only; scripts that generate artifacts call ``ensure_output_dirs`` first.
+def ensure_output_dirs():
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
 # DATA FILES
