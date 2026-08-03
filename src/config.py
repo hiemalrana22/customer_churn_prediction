@@ -6,6 +6,8 @@ to ensure consistency and reproducibility across the analysis.
 """
 
 from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # ============================================================================
 # PROJECT PATHS
@@ -99,11 +101,6 @@ TARGET = 'Churn'
 
 def set_plot_style():
     """Apply consistent plotting style across all visualizations."""
-    # Plotting is used by local analysis scripts only.  Import it here rather
-    # than at module load so the Vercel request path does not require it.
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
     sns.set_style(PLOT_STYLE)
     sns.set_context(PLOT_CONTEXT)
     sns.set_palette(PALETTE)

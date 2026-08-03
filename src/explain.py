@@ -13,6 +13,7 @@ matrix and carry the one-hot feature names through, then fold them back into
 readable labels.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xgboost as xgb
@@ -74,9 +75,6 @@ def global_importance(pipeline, X: pd.DataFrame, top_n: int = 15) -> pd.DataFram
 
 
 def plot_global_importance(pipeline, X, top_n: int = 12, save_path=None):
-    # Keep Matplotlib out of the Vercel runtime; this is an offline artifact.
-    import matplotlib.pyplot as plt
-
     grouped = global_importance(pipeline, X, top_n)
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.barh(grouped["feature"][::-1], grouped["mean_abs_shap"][::-1],
