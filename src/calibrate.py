@@ -19,7 +19,7 @@ from sklearn.frozen import FrozenEstimator
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 from sklearn.model_selection import train_test_split
 
-from .config import FIGURES_DIR, RANDOM_SEED, COLORS, ensure_output_dirs
+from .config import FIGURES_DIR, RANDOM_SEED, COLORS
 from .model import build_pipeline, prepare_xy, train as train_base
 from .data_loader import load_from_sqlite
 
@@ -104,7 +104,6 @@ def plot_reliability(y_true, raw_prob, cal_prob, report, save_path=None):
 
     if save_path is None:
         save_path = FIGURES_DIR / "reliability_curve.png"
-    ensure_output_dirs()
     fig.savefig(save_path, dpi=200, bbox_inches="tight")
     return fig
 

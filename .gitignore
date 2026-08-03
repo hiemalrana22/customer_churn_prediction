@@ -65,7 +65,6 @@ Thumbs.db
 # Kaggle
 .kaggle/
 *.json
-!vercel.json
 
 # Logs
 *.log
@@ -83,3 +82,4 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+

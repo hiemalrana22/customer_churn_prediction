@@ -32,7 +32,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from xgboost import XGBClassifier
 
-from .config import MODEL_FILE, RANDOM_SEED, ensure_output_dirs
+from .config import MODEL_FILE, RANDOM_SEED
 from .data_loader import load_from_sqlite
 
 TARGET = "Churn"
@@ -131,7 +131,6 @@ def train(df: pd.DataFrame = None, test_size: float = 0.2) -> TrainResult:
 
 def save(result: TrainResult, path: Path = MODEL_FILE) -> Path:
     """Persist the fitted pipeline + threshold so the app can load it cold."""
-    ensure_output_dirs()
     joblib.dump({"pipeline": result.pipeline, "threshold": result.threshold,
                  "metrics": result.metrics}, path)
     return path

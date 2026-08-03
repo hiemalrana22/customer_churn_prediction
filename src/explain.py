@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 
-from .config import FIGURES_DIR, COLORS, ensure_output_dirs
+from .config import FIGURES_DIR, COLORS
 from .model import load as load_model, train, save, prepare_xy
 from .data_loader import load_from_sqlite
 
@@ -85,7 +85,6 @@ def plot_global_importance(pipeline, X, top_n: int = 12, save_path=None):
     fig.tight_layout()
     if save_path is None:
         save_path = FIGURES_DIR / "shap_global_importance.png"
-    ensure_output_dirs()
     fig.savefig(save_path, dpi=200, bbox_inches="tight")
     return fig
 
