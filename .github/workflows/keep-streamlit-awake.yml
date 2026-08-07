@@ -6,8 +6,9 @@ name: Keep Streamlit app awake
 
 on:
   schedule:
-    # Community Cloud sleeps after ~12h idle. Every 6h leaves margin for GH cron delay.
-    - cron: "17 */6 * * *"
+    # Community Cloud sleeps after ~12h without a real browser session.
+    # Every 2h stays well inside that window even if GitHub cron runs late.
+    - cron: "17 */2 * * *"
   workflow_dispatch:
 
 permissions:
