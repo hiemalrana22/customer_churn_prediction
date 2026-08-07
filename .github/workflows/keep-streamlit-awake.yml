@@ -1,22 +1,38 @@
 name: Keep Streamlit app awake
 
+# curl / UptimeRobot HTTP checks get 200 from the sleep page and do NOT wake the app.
+# This job opens a real Chromium session (Playwright), clicks the wake button if
+# needed, and fails if the app is still asleep — so green means actually awake.
+
 on:
   schedule:
-    # Streamlit Community Cloud hibernates apps after 12 hours without traffic.
-    # Run off the top of the hour to reduce the chance of GitHub queue delays.
-    - cron: "17 */2 * * *"
+    # Community Cloud sleeps after ~12h idle. Every 6h leaves margin for GH cron delay.
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  ping-app:
+  wake-app:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 20
     steps:
-      - name: Request Streamlit app
-        run: >-
-          curl --fail --silent --show-error
-          --max-time 120 --retry 2 --retry-delay 10
-          --output /dev/null
-          https://customerchurnprediction-wrdtyrnpxtw6p4crk8ownm.streamlit.app/
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          pip install --disable-pip-version-check playwright
+          playwright install chromium --with-deps
+
+      - name: Wake Streamlit app
+        run: >
+          python scripts/keep_streamlit_awake.py
+          --url https://customerchurnprediction-wrdtyrnpxtw6p4crk8ownm.streamlit.app/
+          --hold-seconds 60
